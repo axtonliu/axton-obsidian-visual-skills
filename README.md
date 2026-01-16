@@ -27,6 +27,10 @@ Visual Skills Pack for Obsidian: generate Canvas, Excalidraw, and Mermaid diagra
 </tr>
 </table>
 
+### Video Demo
+
+[![Watch the demo](https://img.youtube.com/vi/TUJ_3G1cylc/maxresdefault.jpg)](https://youtu.be/TUJ_3G1cylc)
+
 ## Status
 
 > **Status: Experimental**
