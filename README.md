@@ -233,6 +233,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ### Learn More
 
+- [Claude Skills 万字长文：从指令到资产的系统化构建指南](https://www.axtonliu.ai/newsletters/ai-2/posts/claude-agent-skills-maps-framework) - Complete methodology
 - [AI Elite Weekly Newsletter](https://www.axtonliu.ai/newsletters/ai-2) - Weekly AI insights
 - [Free AI Course](https://www.axtonliu.ai/axton-free-course) - Get started with AI
 
