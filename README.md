@@ -172,14 +172,37 @@ axton-obsidian-visual-skills/
 └── LICENSE
 ```
 
+## Troubleshooting
+
+### Excalidraw: Chinese text not showing as handwriting font
+
+The skill correctly sets `fontFamily: 5` (Excalifont). However, **Excalifont only covers Latin characters** — CJK handwriting font (Xiaolai) is loaded dynamically from the network.
+
+**Why it works for me:** My Chinese text displays in handwriting style because the font loads successfully from Excalidraw.com.
+
+**Why it might not work for you:**
+- Offline mode or unstable network connection
+- Cannot access Excalidraw.com (firewall, etc.)
+
+**Solutions:**
+
+**Option A (Online):** Ensure your network can access Excalidraw.com
+
+**Option B (Offline):**
+1. Download CJK font files from [Excalidraw GitHub](https://github.com/excalidraw/excalidraw/tree/master/public/fonts)
+2. Place them in your vault's `Excalidraw/CJK Fonts` folder
+3. In Excalidraw plugin settings, enable "Load Chinese fonts from file at startup"
+4. Restart Obsidian (required for settings to take effect)
+
 ## Contributing
 
-Contributions are welcome! Feel free to:
+Contributions welcome (low-maintenance project):
 
-- Report bugs with reproducible cases (input + output + steps)
-- Suggest new diagram types or features
-- Improve documentation
-- Submit pull requests
+- Reproducible bug reports (input + output + steps + environment)
+- Documentation improvements
+- Small PRs (fixes/docs)
+
+> **Note:** Feature requests may not be acted on due to limited maintenance capacity.
 
 ## Acknowledgments
 

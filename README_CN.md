@@ -172,14 +172,37 @@ axton-obsidian-visual-skills/
 └── LICENSE
 ```
 
+## 常见问题
+
+### Excalidraw：中文不是手写体
+
+Skill 已正确设置 `fontFamily: 5`（Excalifont）。但 **Excalifont 只覆盖拉丁字符** —— CJK 手写字体（小赖字体）是从网络动态加载的。
+
+**为什么我这边能显示手写体：** 联网状态下字体从 Excalidraw.com 加载成功。
+
+**为什么你那边可能不行：**
+- 离线模式或网络不稳定
+- 无法访问 Excalidraw.com（防火墙等）
+
+**解决方案：**
+
+**方案 A（联网场景）：** 确保网络能正常访问 Excalidraw.com
+
+**方案 B（离线场景）：**
+1. 从 [Excalidraw GitHub](https://github.com/excalidraw/excalidraw/tree/master/public/fonts) 下载 CJK 字体文件
+2. 放到 Vault 里的 `Excalidraw/CJK Fonts` 文件夹
+3. 在 Excalidraw 插件设置里启用 "Load Chinese fonts from file at startup"
+4. 重启 Obsidian（设置需要重启才生效）
+
 ## 贡献
 
-欢迎贡献！你可以：
+欢迎贡献（低维护项目）：
 
-- 报告 Bug，请附上可复现案例（输入 + 输出 + 步骤）
-- 建议新的图表类型或功能
-- 改进文档
-- 提交 Pull Request
+- 可复现的 Bug 报告（输入 + 输出 + 步骤 + 环境）
+- 文档改进
+- 小型 PR（修复/文档）
+
+> **注意：** 由于维护精力有限，功能请求可能不会被处理。
 
 ## 致谢
 
