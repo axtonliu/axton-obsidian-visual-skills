@@ -144,7 +144,12 @@ tags: [excalidraw]
   - 次要注释：14px（仅限不重要的辅助说明，慎用）
   - **绝对禁止低于 14px**
 - **行高**：所有文本使用 `lineHeight: 1.25`
-- **文字居中估算**：独立文本元素没有自动居中，需手动计算 x 坐标：
+- **文字绑定（有容器时的默认做法）**：标签属于某个图形（矩形/椭圆等容器）时，一律用**绑定文本**（bound text），不要手动定位独立 text 元素：
+  - 容器：`boundElements: [{"type": "text", "id": "<textId>"}]`
+  - 文本：`containerId: "<containerId>"`、`verticalAlign: "middle"`、`textAlign: "center"`、`autoResize: false`，`x/y/width/height` 取容器范围向内缩进约 5px
+  - Excalidraw 会自行居中并换行文本，不需要手动计算居中，也不会溢出容器边框；完整示例见下方 Element Template 的 "Bound Text"
+  - 多行标签在同一个绑定文本里用 `\n` 换行，不要拆成多个独立元素
+- **文字居中估算（仅限无容器的标题/独立说明）**：没有容器可绑定时才用独立 text 元素，仍需手动计算 x 坐标——注意这只是估算，不是渲染器的精确测量，会有误差，需在四周留出更多空白：
   - 估算文字宽度：`estimatedWidth = text.length * fontSize * 0.5`（CJK 字符用 `* 1.0`）
   - 居中公式：`x = centerX - estimatedWidth / 2`
   - 示例：文字 "Hello"（5字符, fontSize 20）居中于 x=300 → `estimatedWidth = 5 * 20 * 0.5 = 50` → `x = 300 - 25 = 275`
@@ -269,6 +274,39 @@ Text elements add:
 }
 ```
 
+**Bound Text（标签属于某个容器时的默认做法）**：容器的 `boundElements` 指向文本 id，文本的 `containerId` 指回容器 id，两者互相引用；文本用 `verticalAlign: "middle"`、`autoResize: false`，`x/y/width/height` 取容器范围向内缩进约 5px：
+
+容器：
+```json
+{
+  "id": "rect-1",
+  "type": "rectangle",
+  "x": 100, "y": 100, "width": 200, "height": 60,
+  ...
+  "boundElements": [{"type": "text", "id": "text-1"}]
+}
+```
+
+绑定文本：
+```json
+{
+  "id": "text-1",
+  "type": "text",
+  "text": "显示文本",
+  "fontSize": 16,
+  "fontFamily": 5,
+  "textAlign": "center",
+  "verticalAlign": "middle",
+  "containerId": "rect-1",
+  "originalText": "显示文本",
+  "autoResize": false,
+  "lineHeight": 1.25,
+  "x": 105, "y": 105, "width": 190, "height": 50
+}
+```
+
+Excalidraw 会自行居中并换行绑定文本，标签不会溢出容器边框。`containerId: null` 只用于没有容器可绑定的标题或独立说明（见上方"文字居中估算"）。
+
 **Animated 模式额外添加** `customData` 字段：
 ```json
 {
@@ -291,14 +329,15 @@ See [references/excalidraw-schema.md](references/excalidraw-schema.md) for all e
 ## Additional Technical Requirements
 
 ### Text Elements 处理
-- `## Text Elements` 部分在 Markdown 中**必须留空**，仅用 `%%` 作为分隔符
-- Obsidian ExcaliDraw 插件会根据 JSON 数据**自动填充文本元素**
-- 不需要手动列出所有文本内容
+- `## Text Elements` 部分**必须已填充**，不能留空：每个文本元素一条 `{文本内容} ^{elementId}` 记录，锚点 id 与该元素在 JSON 里的 `id` 完全一致，条目之间空一行
+- 原因：Obsidian ExcaliDraw 插件保存时会把文本写回这个区块（用元素 `id` 生成 `^anchor`），下次打开时**同时**读取这个区块和 JSON。留空只是把首次填充推迟到插件的第一次保存；下次打开时区块里的文本和 JSON 里的文本就是两份重复的标签，各自渲染，画面出现错位的重复文字和裸露的 `^elementId` 字符串
+- 实测（一次留空生成 → 保存 → 再打开的往返）：63 个 anchor 中 10 个重复（如 `cal1`、`cube-t`）、4 个文本为空、2 个是插件自己生成的 id
+- 生成时就把这个区块和 JSON 一起写出，两者保持一致，不要指望插件"自动补全"
 
 ### 坐标与布局
 - **坐标系统**：左上角为原点 (0,0)
 - **推荐范围**：所有元素在 0-1200 x 0-800 像素范围内
-- **元素 ID**：每个元素需要唯一的 `id`（可以是字符串，如「title」「box1」等）
+- **元素 ID**：每个元素的 `id` 必须在整份图里唯一，建议用脚本生成（前缀 + 递增序号，如 `box001`、`txt002`），不要用会跨图形复用的短 id（如 `cal1`、`cal2`）——id 冲突会让插件在 Text Elements 区块写出重复或错位的 `^anchor`
 
 ### Required Fields for All Elements
 
@@ -346,6 +385,8 @@ See [references/excalidraw-schema.md](references/excalidraw-schema.md) for all e
 }
 ```
 
+标签属于某个容器时用绑定文本代替 `containerId: null`——见 "Element Template" 中的 Bound Text 示例（`containerId` 指向容器 id，容器的 `boundElements` 指回文本 id，`autoResize: false`）。
+
 ### appState 配置
 ```json
 "appState": {
@@ -361,7 +402,7 @@ See [references/excalidraw-schema.md](references/excalidraw-schema.md) for all e
 
 ## Common Mistakes to Avoid
 
-- **文字偏移** — 独立 text 元素的 `x` 是左边缘，不是中心。必须用居中公式手动计算，否则文字会偏到一边
+- **文字偏移 / 溢出容器** — 独立 text 元素的 `x` 是左边缘，不是中心，且居中公式只是估算宽度，不是渲染器的精确测量，仍会有误差。标签属于某个图形时改用**绑定文本**（Bound Text），从结构上消除偏移和溢出；只有真正独立的标题/说明才用居中公式手动计算，并留出更多空白余量
 - **元素重叠** — y 坐标相近的元素容易堆叠。放置新元素前检查与周围元素是否有至少 20px 间距
 - **画布留白不足** — 内容不要贴着画布边缘。在四周留 50-80px 的 padding
 - **标题没有居中于图表** — 标题应居中于下方图表的整体宽度，不是固定在 x=0
